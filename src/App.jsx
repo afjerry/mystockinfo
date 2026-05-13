@@ -512,31 +512,15 @@ export default function App() {
   const [stocks, setStocks] = useState(sampleStocks);
   const [indexes, setIndexes] = useState(sampleIndexes);
 
-const addStock = async (ticker) => {
-  const exists = stocks.some((stock) => stock.ticker === ticker);
-  if (exists) return;
+  const addStock = (ticker) => {
+    const exists = stocks.some((stock) => stock.ticker === ticker);
+    if (exists) return;
+    setStocks((currentStocks) => [createPlaceholderStock(ticker), ...currentStocks]);
+  };
 
-  try {
-    const response = await fetch(`/api/quote?symbol=${ticker}`);
-    const data = await response.json();
-
-    const newStock = {
-      ticker: data.ticker,
-      name: `${data.ticker} Holdings`,
-      price: data.price,
-      change: data.change,
-      percent: data.percent,
-      volume: "Live",
-      marketCap: "Live",
-      signal: data.percent >= 0 ? "Positive" : "Negative",
-      drivers: data.drivers,
-    };
-
-    setStocks((currentStocks) => [newStock, ...currentStocks]);
-  } catch (error) {
-    console.error("Failed to load stock", error);
-  }
-};
+  const removeStock = (ticker) => {
+    setStocks((currentStocks) => currentStocks.filter((stock) => stock.ticker !== ticker));
+  };
 
   const addIndex = (symbol) => {
     const exists = indexes.some((index) => index.symbol === symbol);
@@ -620,3 +604,4 @@ const addStock = async (ticker) => {
     </div>
   );
 }
+
