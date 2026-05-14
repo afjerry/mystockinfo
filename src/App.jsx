@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 
 const Icon = ({ children, size = 18, className = "" }) => (
   <span
@@ -540,56 +540,108 @@ function createPlaceholderIndex(symbol) {
 }
 
 export default function App() {
-  const [stocks, setStocks] = useState(sampleStocks);
+  const [stocks, setStocks] = useState(() => {
+    const savedTickers = localStorage.getItem("mystockinfo_tickers");
+    if (!savedTickers) return sampleStocks;
+
+    try {
+      const tickers = JSON.parse(savedTickers);
+      return tickers.map((ticker) => ({
+        ticker,
+        name: ticker,
+        price: 0,
+        change: 0,
+        percent: 0,
+        volume: "Loading...",
+        marketCap: "Loading...",
+        signal: "Loading",
+        drivers: [],
+      }));
+    } catch {
+      return sampleStocks;
+    }
+  });
+
   const [indexes, setIndexes] = useState(sampleIndexes);
+
+  const loadStock = async (ticker) => {
+    const cleanTicker = ticker.trim().toUpperCase();
+    if (!cleanTicker) return null;
+
+    const response = await fetch(`/api/quote?symbol=${cleanTicker}`);
+    const data = await response.json();
+
+    if (!response.ok) {
+      console.error("Finnhub API error", data);
+      return null;
+    }
+
+    return {
+      ticker: data.ticker || cleanTicker,
+      name: data.name || `${cleanTicker} Holdings`,
+      price: Number(data.price || 0),
+      change: Number(data.change || 0),
+      percent: Number(data.percent || 0),
+      volume: data.volume || "Live",
+      marketCap: data.marketCap || "Live",
+      signal: data.signal || (Number(data.percent || 0) >= 0 ? "Positive" : "Negative"),
+      drivers: data.drivers || [
+        {
+          headline: "Live market data loaded",
+          details: `${cleanTicker} is updating from live market data.`,
+          url: "",
+        },
+      ],
+    };
+  };
+
+  useEffect(() => {
+    const refreshStocks = async () => {
+      const tickers = stocks.map((stock) => stock.ticker);
+
+      const refreshed = await Promise.all(
+        tickers.map((ticker) => loadStock(ticker))
+      );
+
+      const validStocks = refreshed.filter(Boolean);
+
+      if (validStocks.length > 0) {
+        setStocks(validStocks);
+      }
+    };
+
+    refreshStocks();
+  }, []);
+
+  useEffect(() => {
+    const tickers = stocks.map((stock) => stock.ticker);
+    localStorage.setItem("mystockinfo_tickers", JSON.stringify(tickers));
+  }, [stocks]);
 
   const addStock = async (ticker) => {
     const cleanTicker = ticker.trim().toUpperCase();
     if (!cleanTicker) return;
 
-    try {
-      const response = await fetch(`/api/quote?symbol=${cleanTicker}`);
-      const data = await response.json();
+    const liveStock = await loadStock(cleanTicker);
+    if (!liveStock) return;
 
-      if (!response.ok) {
-        console.error("Finnhub API error", data);
-        return;
+    setStocks((currentStocks) => {
+      const exists = currentStocks.some((stock) => stock.ticker === cleanTicker);
+
+      if (exists) {
+        return currentStocks.map((stock) =>
+          stock.ticker === cleanTicker ? liveStock : stock
+        );
       }
 
-      const liveStock = {
-        ticker: data.ticker || cleanTicker,
-        name: data.name || `${cleanTicker} Holdings`,
-        price: Number(data.price || 0),
-        change: Number(data.change || 0),
-        percent: Number(data.percent || 0),
-        volume: data.volume || "Live",
-        marketCap: data.marketCap || "Live",
-        signal: data.signal || (Number(data.percent || 0) >= 0 ? "Positive" : "Negative"),
-        drivers: data.drivers || [
-          {
-            headline: "Live market data from Finnhub",
-            details: `${cleanTicker} is updating from Finnhub market data. No article link was returned for this item.`,
-            url: "",
-          },
-        ],
-      };
-
-      setStocks((currentStocks) => {
-        const exists = currentStocks.some((stock) => stock.ticker === cleanTicker);
-
-        if (exists) {
-          return currentStocks.map((stock) => (stock.ticker === cleanTicker ? liveStock : stock));
-        }
-
-        return [liveStock, ...currentStocks];
-      });
-    } catch (error) {
-      console.error("Failed to load stock", error);
-    }
+      return [liveStock, ...currentStocks];
+    });
   };
 
   const removeStock = (ticker) => {
-    setStocks((currentStocks) => currentStocks.filter((stock) => stock.ticker !== ticker));
+    setStocks((currentStocks) =>
+      currentStocks.filter((stock) => stock.ticker !== ticker)
+    );
   };
 
   const addIndex = (symbol) => {
@@ -599,15 +651,19 @@ export default function App() {
     const exists = indexes.some((index) => index.symbol === cleanSymbol);
     if (exists) return;
 
-    setIndexes((currentIndexes) => [createPlaceholderIndex(cleanSymbol), ...currentIndexes]);
+    setIndexes((currentIndexes) => [
+      createPlaceholderIndex(cleanSymbol),
+      ...currentIndexes,
+    ]);
   };
 
   const removeIndex = (symbol) => {
-    setIndexes((currentIndexes) => currentIndexes.filter((index) => index.symbol !== symbol));
+    setIndexes((currentIndexes) =>
+      currentIndexes.filter((index) => index.symbol !== symbol)
+    );
   };
 
-  return (
-    <div className="min-h-screen bg-slate-50 text-slate-950">
+  return (  <div className="min-h-screen bg-slate-50 text-slate-950">
       <header className="border-b bg-white/90 backdrop-blur">
         <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-4 px-6 py-4">
           <div>
