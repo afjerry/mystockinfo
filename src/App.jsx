@@ -199,6 +199,19 @@ const sampleStocks = [
   },
 ];
 
+const indexApiSymbols = {
+  DJIA: "^DJI",
+  DOW: "^DJI",
+  SPX: "^GSPC",
+  SP500: "^GSPC",
+  "S&P500": "^GSPC",
+  "S&P 500": "^GSPC",
+  NDX: "^NDX",
+  NASDAQ: "^IXIC",
+  IXIC: "^IXIC",
+  RUT: "^RUT",
+};
+
 function isRealUrl(url) {
   return typeof url === "string" && /^https?:\/\//i.test(url);
 }
@@ -237,6 +250,22 @@ function signedNumber(value) {
   return `${safeValue >= 0 ? "+" : ""}${safeValue.toFixed(2)}`;
 }
 
+function createPlaceholderIndex(symbol) {
+  return {
+    symbol,
+    name: `${symbol} Market Index`,
+    value: "—",
+    change: 0,
+    percent: 0,
+    driver: {
+      headline: "Loading live index data...",
+      details:
+        "This index is being refreshed from your market data API. If it does not update, check the /api/quote route and make sure index symbols are supported.",
+      url: "",
+    },
+  };
+}
+
 function PortfolioSummary({ stocks }) {
   const gainers = stocks.filter((stock) => Number(stock.change || 0) >= 0).length;
   const losers = stocks.length - gainers;
@@ -264,6 +293,57 @@ function PortfolioSummary({ stocks }) {
           {signedNumber(averageMove)}%
         </div>
         <div className="mt-2 text-sm text-slate-500">Across your tracked names</div>
+      </div>
+    </div>
+  );
+}
+
+function openDriver(driver, setSelectedDriver) {
+  if (isRealUrl(driver?.url)) {
+    window.open(driver.url, "_blank", "noopener,noreferrer");
+    return;
+  }
+
+  setSelectedDriver(driver);
+}
+
+function DriverDetailModal({ driver, stock, onClose, label = "market driver" }) {
+  if (!driver) return null;
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/60 p-4">
+      <div className="w-full max-w-xl rounded-[2rem] bg-white p-6 shadow-2xl">
+        <div className="flex items-start justify-between gap-4">
+          <div>
+            <div className="mb-2 inline-flex rounded-full bg-blue-50 px-3 py-1 text-xs font-semibold text-blue-700">
+              {stock.ticker} {label}
+            </div>
+            <h3 className="text-2xl font-bold text-slate-950">{driver.headline}</h3>
+          </div>
+          <button
+            type="button"
+            onClick={onClose}
+            className="rounded-full border border-slate-200 p-2 text-slate-400 transition hover:border-red-200 hover:bg-red-50 hover:text-red-600"
+            aria-label="Close driver details"
+          >
+            <RemoveIcon size={14} />
+          </button>
+        </div>
+
+        <p className="mt-5 leading-7 text-slate-600">{driver.details}</p>
+
+        <div className="mt-6 rounded-2xl bg-slate-50 p-4 text-sm text-slate-600">
+          In the production app, this would open the full news article, earnings note, analyst report, or AI-generated
+          explanation connected to your market data provider.
+        </div>
+        <button
+          type="button"
+          disabled
+          className="mt-5 inline-flex cursor-not-allowed items-center gap-2 rounded-2xl bg-slate-200 px-5 py-3 font-semibold text-slate-500"
+          title="No article link is available for this item yet."
+        >
+          Article link unavailable
+        </button>
       </div>
     </div>
   );
@@ -322,93 +402,6 @@ function MarketIndexCard({ index, onRemove }) {
         onClose={() => setSelectedDriver(null)}
         label="index market driver"
       />
-    </div>
-  );
-}
-
-function AddIndexBar({ onAdd }) {
-  const [symbol, setSymbol] = useState("");
-
-  const submitIndex = () => {
-    const cleanSymbol = symbol.trim().toUpperCase();
-    if (!cleanSymbol) return;
-    onAdd(cleanSymbol);
-    setSymbol("");
-  };
-
-  return (
-    <div className="flex flex-wrap gap-3 rounded-3xl border bg-white p-3 shadow-sm">
-      <label className="flex min-w-[260px] flex-1 items-center gap-2 rounded-2xl bg-slate-50 px-4 py-3 text-slate-500">
-        <MarketIcon size={18} />
-        <input
-          className="w-full bg-transparent text-slate-700 outline-none placeholder:text-slate-400"
-          value={symbol}
-          onChange={(event) => setSymbol(event.target.value.toUpperCase())}
-          onKeyDown={(event) => {
-            if (event.key === "Enter") submitIndex();
-          }}
-          placeholder="Add market index: DJIA, SPX, NDX, RUT..."
-          aria-label="Market index symbol"
-        />
-      </label>
-      <button
-        type="button"
-        className="flex items-center gap-2 rounded-2xl bg-slate-950 px-5 py-3 font-semibold text-white shadow-sm transition hover:bg-slate-800"
-        onClick={submitIndex}
-      >
-        <PlusIcon size={18} /> Add Index
-      </button>
-    </div>
-  );
-}
-
-function openDriver(driver, setSelectedDriver) {
-  if (isRealUrl(driver?.url)) {
-    window.open(driver.url, "_blank", "noopener,noreferrer");
-    return;
-  }
-
-  setSelectedDriver(driver);
-}
-
-function DriverDetailModal({ driver, stock, onClose, label = "market driver" }) {
-  if (!driver) return null;
-
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/60 p-4">
-      <div className="w-full max-w-xl rounded-[2rem] bg-white p-6 shadow-2xl">
-        <div className="flex items-start justify-between gap-4">
-          <div>
-            <div className="mb-2 inline-flex rounded-full bg-blue-50 px-3 py-1 text-xs font-semibold text-blue-700">
-              {stock.ticker} {label}
-            </div>
-            <h3 className="text-2xl font-bold text-slate-950">{driver.headline}</h3>
-          </div>
-          <button
-            type="button"
-            onClick={onClose}
-            className="rounded-full border border-slate-200 p-2 text-slate-400 transition hover:border-red-200 hover:bg-red-50 hover:text-red-600"
-            aria-label="Close driver details"
-          >
-            <RemoveIcon size={14} />
-          </button>
-        </div>
-
-        <p className="mt-5 leading-7 text-slate-600">{driver.details}</p>
-
-        <div className="mt-6 rounded-2xl bg-slate-50 p-4 text-sm text-slate-600">
-          In the production app, this would open the full news article, earnings note, analyst report, or AI-generated
-          explanation connected to your market data provider.
-        </div>
-        <button
-          type="button"
-          disabled
-          className="mt-5 inline-flex cursor-not-allowed items-center gap-2 rounded-2xl bg-slate-200 px-5 py-3 font-semibold text-slate-500"
-          title="No article link is available for this item yet."
-        >
-          Article link unavailable
-        </button>
-      </div>
     </div>
   );
 }
@@ -523,20 +516,40 @@ function AddStockBar({ onAdd }) {
   );
 }
 
-function createPlaceholderIndex(symbol) {
-  return {
-    symbol,
-    name: `${symbol} Market Index`,
-    value: "—",
-    change: symbol.length % 2 === 0 ? 41.25 : -18.7,
-    percent: symbol.length % 2 === 0 ? 0.64 : -0.31,
-    driver: {
-      headline: "Connect a market data API to load the latest index level",
-      details:
-        "This placeholder index is ready to connect to a live market data API. In production, the app can summarize the main sectors, macro news, rates, or earnings trends moving the index.",
-      url: "#connect-index-market-data",
-    },
+function AddIndexBar({ onAdd }) {
+  const [symbol, setSymbol] = useState("");
+
+  const submitIndex = () => {
+    const cleanSymbol = symbol.trim().toUpperCase();
+    if (!cleanSymbol) return;
+    onAdd(cleanSymbol);
+    setSymbol("");
   };
+
+  return (
+    <div className="flex flex-wrap gap-3 rounded-3xl border bg-white p-3 shadow-sm">
+      <label className="flex min-w-[260px] flex-1 items-center gap-2 rounded-2xl bg-slate-50 px-4 py-3 text-slate-500">
+        <MarketIcon size={18} />
+        <input
+          className="w-full bg-transparent text-slate-700 outline-none placeholder:text-slate-400"
+          value={symbol}
+          onChange={(event) => setSymbol(event.target.value.toUpperCase())}
+          onKeyDown={(event) => {
+            if (event.key === "Enter") submitIndex();
+          }}
+          placeholder="Add market index: DJIA, SPX, NDX, RUT..."
+          aria-label="Market index symbol"
+        />
+      </label>
+      <button
+        type="button"
+        className="flex items-center gap-2 rounded-2xl bg-slate-950 px-5 py-3 font-semibold text-white shadow-sm transition hover:bg-slate-800"
+        onClick={submitIndex}
+      >
+        <PlusIcon size={18} /> Add Index
+      </button>
+    </div>
+  );
 }
 
 export default function App() {
@@ -562,13 +575,23 @@ export default function App() {
     }
   });
 
-  const [indexes, setIndexes] = useState(sampleIndexes);
+  const [indexes, setIndexes] = useState(() => {
+    const savedIndexes = localStorage.getItem("mystockinfo_indexes");
+    if (!savedIndexes) return sampleIndexes;
+
+    try {
+      const symbols = JSON.parse(savedIndexes);
+      return symbols.map((symbol) => createPlaceholderIndex(symbol));
+    } catch {
+      return sampleIndexes;
+    }
+  });
 
   const loadStock = async (ticker) => {
     const cleanTicker = ticker.trim().toUpperCase();
     if (!cleanTicker) return null;
 
-    const response = await fetch(`/api/quote?symbol=${cleanTicker}`);
+    const response = await fetch(`/api/quote?symbol=${encodeURIComponent(cleanTicker)}`);
     const data = await response.json();
 
     if (!response.ok) {
@@ -595,14 +618,39 @@ export default function App() {
     };
   };
 
+  const loadIndex = async (symbol) => {
+    const cleanSymbol = symbol.trim().toUpperCase();
+    if (!cleanSymbol) return null;
+
+    const apiSymbol = indexApiSymbols[cleanSymbol] || cleanSymbol;
+
+    const response = await fetch(`/api/quote?symbol=${encodeURIComponent(apiSymbol)}`);
+    const data = await response.json();
+
+    if (!response.ok) {
+      console.error("Index API error", data);
+      return null;
+    }
+
+    return {
+      symbol: cleanSymbol,
+      name: data.name || `${cleanSymbol} Market Index`,
+      value: Number(data.price || 0).toLocaleString(),
+      change: Number(data.change || 0),
+      percent: Number(data.percent || 0),
+      driver: {
+        headline: data.drivers?.[0]?.headline || "Live market data loaded for this index",
+        details: data.drivers?.[0]?.details || `${cleanSymbol} is updating from live market data.`,
+        url: data.drivers?.[0]?.url || "",
+      },
+    };
+  };
+
   useEffect(() => {
     const refreshStocks = async () => {
       const tickers = stocks.map((stock) => stock.ticker);
 
-      const refreshed = await Promise.all(
-        tickers.map((ticker) => loadStock(ticker))
-      );
-
+      const refreshed = await Promise.all(tickers.map((ticker) => loadStock(ticker)));
       const validStocks = refreshed.filter(Boolean);
 
       if (validStocks.length > 0) {
@@ -614,9 +662,29 @@ export default function App() {
   }, []);
 
   useEffect(() => {
+    const refreshIndexes = async () => {
+      const symbols = indexes.map((index) => index.symbol);
+
+      const refreshed = await Promise.all(symbols.map((symbol) => loadIndex(symbol)));
+      const validIndexes = refreshed.filter(Boolean);
+
+      if (validIndexes.length > 0) {
+        setIndexes(validIndexes);
+      }
+    };
+
+    refreshIndexes();
+  }, []);
+
+  useEffect(() => {
     const tickers = stocks.map((stock) => stock.ticker);
     localStorage.setItem("mystockinfo_tickers", JSON.stringify(tickers));
   }, [stocks]);
+
+  useEffect(() => {
+    const symbols = indexes.map((index) => index.symbol);
+    localStorage.setItem("mystockinfo_indexes", JSON.stringify(symbols));
+  }, [indexes]);
 
   const addStock = async (ticker) => {
     const cleanTicker = ticker.trim().toUpperCase();
@@ -629,9 +697,7 @@ export default function App() {
       const exists = currentStocks.some((stock) => stock.ticker === cleanTicker);
 
       if (exists) {
-        return currentStocks.map((stock) =>
-          stock.ticker === cleanTicker ? liveStock : stock
-        );
+        return currentStocks.map((stock) => (stock.ticker === cleanTicker ? liveStock : stock));
       }
 
       return [liveStock, ...currentStocks];
@@ -639,31 +705,33 @@ export default function App() {
   };
 
   const removeStock = (ticker) => {
-    setStocks((currentStocks) =>
-      currentStocks.filter((stock) => stock.ticker !== ticker)
-    );
+    setStocks((currentStocks) => currentStocks.filter((stock) => stock.ticker !== ticker));
   };
 
-  const addIndex = (symbol) => {
+  const addIndex = async (symbol) => {
     const cleanSymbol = symbol.trim().toUpperCase();
     if (!cleanSymbol) return;
 
-    const exists = indexes.some((index) => index.symbol === cleanSymbol);
-    if (exists) return;
+    const liveIndex = await loadIndex(cleanSymbol);
+    if (!liveIndex) return;
 
-    setIndexes((currentIndexes) => [
-      createPlaceholderIndex(cleanSymbol),
-      ...currentIndexes,
-    ]);
+    setIndexes((currentIndexes) => {
+      const exists = currentIndexes.some((index) => index.symbol === cleanSymbol);
+
+      if (exists) {
+        return currentIndexes.map((index) => (index.symbol === cleanSymbol ? liveIndex : index));
+      }
+
+      return [liveIndex, ...currentIndexes];
+    });
   };
 
   const removeIndex = (symbol) => {
-    setIndexes((currentIndexes) =>
-      currentIndexes.filter((index) => index.symbol !== symbol)
-    );
+    setIndexes((currentIndexes) => currentIndexes.filter((index) => index.symbol !== symbol));
   };
 
-  return (  <div className="min-h-screen bg-slate-50 text-slate-950">
+  return (
+    <div className="min-h-screen bg-slate-50 text-slate-950">
       <header className="border-b bg-white/90 backdrop-blur">
         <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-4 px-6 py-4">
           <div>
