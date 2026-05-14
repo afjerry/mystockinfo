@@ -1,65 +1,74 @@
-export default async function handler(req, res) {
-  const symbol = String(req.query.symbol || "").toUpperCase();
+const indexMap = {
+  DJIA: "^DJI",
+  DOW: "^DJI",
+  SPX: "^GSPC",
+  SP500: "^GSPC",
+  "S&P500": "^GSPC",
+  NDX: "^NDX",
+  NASDAQ: "^IXIC",
+  IXIC: "^IXIC",
+  RUT: "^RUT",
+};
 
-  if (!symbol) {
+export default async function handler(req, res) {
+  const rawSymbol = String(req.query.symbol || "").toUpperCase();
+
+  if (!rawSymbol) {
     return res.status(400).json({ error: "Missing stock symbol" });
   }
 
-  const apiKey = process.env.FINNHUB_API_KEY;
-
-  if (!apiKey) {
-    return res.status(500).json({ error: "Missing Finnhub API key" });
-  }
+  const yahooSymbol = indexMap[rawSymbol] || rawSymbol;
 
   try {
-    const quoteResponse = await fetch(
-      `https://finnhub.io/api/v1/quote?symbol=${symbol}&token=${apiKey}`
-    );
-    const quote = await quoteResponse.json();
+    const quoteUrl = `https://query1.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(
+      yahooSymbol
+    )}?interval=1d&range=5d`;
 
-    const today = new Date();
-    const past = new Date();
-    past.setDate(today.getDate() - 30);
+    const quoteResponse = await fetch(quoteUrl);
+    const quoteData = await quoteResponse.json();
 
-    const to = today.toISOString().slice(0, 10);
-    const from = past.toISOString().slice(0, 10);
+    const result = quoteData?.chart?.result?.[0];
 
-    const newsResponse = await fetch(
-      `https://finnhub.io/api/v1/company-news?symbol=${symbol}&from=${from}&to=${to}&token=${apiKey}`
-    );
-    const news = await newsResponse.json();
+    if (!result) {
+      return res.status(404).json({
+        error: "No quote data found",
+        symbol: rawSymbol,
+        yahooSymbol,
+      });
+    }
 
-    const drivers = Array.isArray(news)
-      ? news.slice(0, 3).map((item) => ({
-          headline: item.headline || "Market update",
-          details: item.summary || "No summary was available for this news item.",
-          url: item.url || "",
-        }))
-      : [];
+    const meta = result.meta || {};
+    const price = Number(meta.regularMarketPrice || 0);
+    const previousClose = Number(meta.previousClose || 0);
+    const change = price - previousClose;
+    const percent = previousClose ? (change / previousClose) * 100 : 0;
+
+    const displayName =
+      meta.longName ||
+      meta.shortName ||
+      meta.symbol ||
+      rawSymbol;
 
     return res.status(200).json({
-      ticker: symbol,
-      name: `${symbol} Holdings`,
-      price: Number(quote.c || 0),
-      change: Number(quote.d || 0),
-      percent: Number(quote.dp || 0),
+      ticker: rawSymbol,
+      name: displayName,
+      price,
+      change,
+      percent,
       volume: "Live",
       marketCap: "Live",
-      signal: Number(quote.dp || 0) >= 0 ? "Positive" : "Negative",
-      drivers:
-        drivers.length > 0
-          ? drivers
-          : [
-              {
-                headline: "Live market data from Finnhub",
-                details: `${symbol} is updating from Finnhub market data, but no recent article link was returned.`,
-                url: "",
-              },
-            ],
+      signal: percent >= 0 ? "Positive" : "Negative",
+      drivers: [
+        {
+          headline: "Live market data from Yahoo Finance",
+          details: `${rawSymbol} is updating from Yahoo Finance market data.`,
+          url: "",
+        },
+      ],
     });
   } catch (error) {
     return res.status(500).json({
-      error: "Failed to fetch Finnhub data",
+      error: "Failed to fetch quote data",
       details: error.message,
     });
   }
