@@ -198,7 +198,8 @@ function runPrototypeChecks() {
 runPrototypeChecks();
 
 function signedNumber(value) {
-  return `${value >= 0 ? "+" : ""}${value.toFixed(2)}`;
+  const safeValue = Number(value || 0);
+  return `${safeValue >= 0 ? "+" : ""}${safeValue.toFixed(2)}`;
 }
 
 function PortfolioSummary({ stocks }) {
@@ -382,7 +383,7 @@ function StockCard({ stock, onRemove }) {
       </div>
 
       <div className="mt-5 flex items-end justify-between">
-        <div className="text-3xl font-bold text-slate-950">${stock.price.toFixed(2)}</div>
+        <div className="text-3xl font-bold text-slate-950">${Number(stock.price || 0).toFixed(2)}</div>
         <div className={`font-semibold ${positive ? "text-emerald-600" : "text-red-600"}`}>
           {signedNumber(stock.change)} / {signedNumber(stock.percent)}%
         </div>
@@ -404,7 +405,7 @@ function StockCard({ stock, onRemove }) {
           <NewspaperIcon size={16} /> What’s moving it
         </div>
         <div className="space-y-2">
-          {stock.drivers.map((driver, index) => (
+          {(stock.drivers || []).map((driver, index) => (
             <button
               key={index}
               type="button"
@@ -478,44 +479,55 @@ function createPlaceholderIndex(symbol) {
   };
 }
 
-function createPlaceholderStock(ticker) {
-  return {
-    ticker,
-    name: `${ticker} Holdings`,
-    price: 100 + ticker.length * 11.25,
-    change: ticker.length % 2 === 0 ? 2.15 : -1.42,
-    percent: ticker.length % 2 === 0 ? 1.36 : -0.88,
-    volume: "—",
-    marketCap: "—",
-    signal: "New",
-    drivers: [
-      {
-        headline: "Connect a market data API to load live price movement",
-        details: "This placeholder stock is ready to connect to a live stock quote API for real-time or delayed price data.",
-        url: "#connect-market-data"
-      },
-      {
-        headline: "Connect a news API to summarize the latest stock catalysts",
-        details: "A production version can connect to a financial news API and summarize the most important headlines affecting this ticker.",
-        url: "#connect-news-api"
-      },
-      {
-        headline: "Use alerts to monitor major price, volume, and news changes",
-        details: "Alerts can notify you when a stock crosses a price level, moves sharply, or gets important breaking news.",
-        url: "#create-stock-alerts"
-      }
-    ]
-  };
-}
-
 export default function App() {
   const [stocks, setStocks] = useState(sampleStocks);
   const [indexes, setIndexes] = useState(sampleIndexes);
 
-  const addStock = (ticker) => {
-    const exists = stocks.some((stock) => stock.ticker === ticker);
-    if (exists) return;
-    setStocks((currentStocks) => [createPlaceholderStock(ticker), ...currentStocks]);
+  const addStock = async (ticker) => {
+    const cleanTicker = ticker.trim().toUpperCase();
+    if (!cleanTicker) return;
+
+    try {
+      const response = await fetch(`/api/quote?symbol=${cleanTicker}`);
+      const data = await response.json();
+
+      if (!response.ok) {
+        console.error("Finnhub API error", data);
+        return;
+      }
+
+      const liveStock = {
+        ticker: data.ticker || cleanTicker,
+        name: data.name || `${cleanTicker} Holdings`,
+        price: Number(data.price || 0),
+        change: Number(data.change || 0),
+        percent: Number(data.percent || 0),
+        volume: data.volume || "Live",
+        marketCap: data.marketCap || "Live",
+        signal: data.signal || (Number(data.percent || 0) >= 0 ? "Positive" : "Negative"),
+        drivers: data.drivers || [
+          {
+            headline: "Live market data from Finnhub",
+            details: `${cleanTicker} is updating from Finnhub market data.`,
+            url: "#"
+          }
+        ],
+      };
+
+      setStocks((currentStocks) => {
+        const exists = currentStocks.some((stock) => stock.ticker === cleanTicker);
+
+        if (exists) {
+          return currentStocks.map((stock) =>
+            stock.ticker === cleanTicker ? liveStock : stock
+          );
+        }
+
+        return [liveStock, ...currentStocks];
+      });
+    } catch (error) {
+      console.error("Failed to load stock", error);
+    }
   };
 
   const removeStock = (ticker) => {
@@ -604,4 +616,5 @@ export default function App() {
     </div>
   );
 }
+
 
