@@ -418,7 +418,7 @@ function StockCard({ stock, onRemove }) {
   const [selectedDriver, setSelectedDriver] = useState(null);
 
   return (
-    <div className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm transition hover:-translate-y-1 hover:shadow-lg">
+    <div className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm transition hover:shadow-lg">
       <div className="flex items-start justify-between gap-3">
         <div>
           <div className="text-xl font-bold text-slate-950">{stock.ticker}</div>
@@ -568,8 +568,8 @@ export default function App() {
         drivers: data.drivers || [
           {
             headline: "Live market data from Finnhub",
-            details: `${cleanTicker} is updating from Finnhub market data.`,
-            url: "#",
+            details: `${cleanTicker} is updating from Finnhub market data. No article link was returned for this item.`,
+            url: "",
           },
         ],
       };
@@ -685,6 +685,3 @@ export default function App() {
     </div>
   );
 }
-
-
-
