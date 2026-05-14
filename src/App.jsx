@@ -30,9 +30,10 @@ const sampleIndexes = [
     percent: 0.39,
     driver: {
       headline: "Blue-chip stocks are higher as investors rotate into profitable large-cap companies.",
-      details: "The Dow Jones Industrial Average is often influenced by mature, profitable large-cap companies. A rotation into blue-chip stocks can happen when investors want more stable earnings, dividends, and defensive exposure.",
-      url: "#djia-blue-chip-rotation"
-    }
+      details:
+        "The Dow Jones Industrial Average is often influenced by mature, profitable large-cap companies. A rotation into blue-chip stocks can happen when investors want more stable earnings, dividends, and defensive exposure.",
+      url: "#djia-blue-chip-rotation",
+    },
   },
   {
     symbol: "SPX",
@@ -42,9 +43,10 @@ const sampleIndexes = [
     percent: 0.8,
     driver: {
       headline: "Broad market strength is being helped by technology, financials, and easing rate concerns.",
-      details: "The S&P 500 reflects a broad cross-section of large U.S. companies. When technology and financials both participate, the move is usually viewed as healthier than a narrow rally led by only a few mega-cap stocks.",
-      url: "#spx-broad-market-strength"
-    }
+      details:
+        "The S&P 500 reflects a broad cross-section of large U.S. companies. When technology and financials both participate, the move is usually viewed as healthier than a narrow rally led by only a few mega-cap stocks.",
+      url: "#spx-broad-market-strength",
+    },
   },
   {
     symbol: "NDX",
@@ -54,9 +56,10 @@ const sampleIndexes = [
     percent: 1.07,
     driver: {
       headline: "AI and semiconductor stocks are leading growth-heavy indexes higher.",
-      details: "The Nasdaq 100 is heavily weighted toward large growth and technology companies. Strength in AI infrastructure, semiconductors, and cloud software can have an outsized effect on this index.",
-      url: "#ndx-ai-semiconductor-strength"
-    }
+      details:
+        "The Nasdaq 100 is heavily weighted toward large growth and technology companies. Strength in AI infrastructure, semiconductors, and cloud software can have an outsized effect on this index.",
+      url: "#ndx-ai-semiconductor-strength",
+    },
   },
   {
     symbol: "RUT",
@@ -66,10 +69,11 @@ const sampleIndexes = [
     percent: -0.55,
     driver: {
       headline: "Small caps are lagging as investors remain cautious on interest-rate-sensitive companies.",
-      details: "The Russell 2000 tracks smaller public companies, which are often more sensitive to borrowing costs and economic growth expectations. Higher-rate concerns can weigh on this part of the market.",
-      url: "#rut-small-cap-rate-pressure"
-    }
-  }
+      details:
+        "The Russell 2000 tracks smaller public companies, which are often more sensitive to borrowing costs and economic growth expectations. Higher-rate concerns can weigh on this part of the market.",
+      url: "#rut-small-cap-rate-pressure",
+    },
+  },
 ];
 
 const sampleStocks = [
@@ -85,20 +89,23 @@ const sampleStocks = [
     drivers: [
       {
         headline: "iPhone demand checks improved in Asia",
-        details: "Recent supply-chain and channel checks suggest stronger iPhone demand in key Asian markets, which may support near-term revenue expectations.",
-        url: "#aapl-iphone-demand"
+        details:
+          "Recent supply-chain and channel checks suggest stronger iPhone demand in key Asian markets, which may support near-term revenue expectations.",
+        url: "#aapl-iphone-demand",
       },
       {
         headline: "Services revenue expected to support margins",
-        details: "Investors are watching Apple’s higher-margin services business because continued growth there can help offset slower hardware cycles.",
-        url: "#aapl-services-margin"
+        details:
+          "Investors are watching Apple’s higher-margin services business because continued growth there can help offset slower hardware cycles.",
+        url: "#aapl-services-margin",
       },
       {
         headline: "Analysts raised near-term price targets",
-        details: "Positive analyst revisions can move sentiment when they point to better expected earnings, stronger product demand, or improving valuation support.",
-        url: "#aapl-analyst-targets"
-      }
-    ]
+        details:
+          "Positive analyst revisions can move sentiment when they point to better expected earnings, stronger product demand, or improving valuation support.",
+        url: "#aapl-analyst-targets",
+      },
+    ],
   },
   {
     ticker: "MSFT",
@@ -112,20 +119,23 @@ const sampleStocks = [
     drivers: [
       {
         headline: "Azure growth remains a key upside driver",
-        details: "Microsoft’s cloud growth is a major driver for the stock because Azure remains central to enterprise AI, data, and infrastructure spending.",
-        url: "#msft-azure-growth"
+        details:
+          "Microsoft’s cloud growth is a major driver for the stock because Azure remains central to enterprise AI, data, and infrastructure spending.",
+        url: "#msft-azure-growth",
       },
       {
         headline: "Copilot adoption continues across enterprise customers",
-        details: "Investors are focused on whether Microsoft can turn AI tools like Copilot into durable subscription revenue across its enterprise base.",
-        url: "#msft-copilot-adoption"
+        details:
+          "Investors are focused on whether Microsoft can turn AI tools like Copilot into durable subscription revenue across its enterprise base.",
+        url: "#msft-copilot-adoption",
       },
       {
         headline: "Cloud software peers trading higher",
-        details: "Strength across cloud software peers can lift Microsoft as investors rotate into companies expected to benefit from AI and enterprise software demand.",
-        url: "#msft-cloud-peers"
-      }
-    ]
+        details:
+          "Strength across cloud software peers can lift Microsoft as investors rotate into companies expected to benefit from AI and enterprise software demand.",
+        url: "#msft-cloud-peers",
+      },
+    ],
   },
   {
     ticker: "TSLA",
@@ -139,20 +149,23 @@ const sampleStocks = [
     drivers: [
       {
         headline: "EV margin concerns remain in focus",
-        details: "Tesla investors are closely watching gross margins because price cuts and production costs can meaningfully affect profitability.",
-        url: "#tsla-margin-concerns"
+        details:
+          "Tesla investors are closely watching gross margins because price cuts and production costs can meaningfully affect profitability.",
+        url: "#tsla-margin-concerns",
       },
       {
         headline: "Investors watching delivery growth trends",
-        details: "Delivery numbers are a key demand signal for Tesla and can influence expectations for revenue growth, factory utilization, and market share.",
-        url: "#tsla-delivery-growth"
+        details:
+          "Delivery numbers are a key demand signal for Tesla and can influence expectations for revenue growth, factory utilization, and market share.",
+        url: "#tsla-delivery-growth",
       },
       {
         headline: "Robotaxi timeline uncertainty weighing on sentiment",
-        details: "Tesla’s valuation partly reflects future autonomy expectations, so uncertainty around timing or execution can pressure investor sentiment.",
-        url: "#tsla-robotaxi-timeline"
-      }
-    ]
+        details:
+          "Tesla’s valuation partly reflects future autonomy expectations, so uncertainty around timing or execution can pressure investor sentiment.",
+        url: "#tsla-robotaxi-timeline",
+      },
+    ],
   },
   {
     ticker: "NVDA",
@@ -166,32 +179,54 @@ const sampleStocks = [
     drivers: [
       {
         headline: "AI chip demand remains strong",
-        details: "NVIDIA continues to benefit from demand for GPUs used in AI training, inference, and accelerated computing workloads.",
-        url: "#nvda-ai-chip-demand"
+        details:
+          "NVIDIA continues to benefit from demand for GPUs used in AI training, inference, and accelerated computing workloads.",
+        url: "#nvda-ai-chip-demand",
       },
       {
         headline: "Data center revenue expectations rising",
-        details: "Data center revenue is the key business line investors watch because it reflects demand from hyperscalers, cloud providers, and enterprise AI buyers.",
-        url: "#nvda-data-center"
+        details:
+          "Data center revenue is the key business line investors watch because it reflects demand from hyperscalers, cloud providers, and enterprise AI buyers.",
+        url: "#nvda-data-center",
       },
       {
         headline: "Semiconductor sector seeing renewed inflows",
-        details: "When investors rotate into semiconductors, NVIDIA often benefits because it is viewed as a leading AI infrastructure company.",
-        url: "#nvda-sector-inflows"
-      }
-    ]
-  }
+        details:
+          "When investors rotate into semiconductors, NVIDIA often benefits because it is viewed as a leading AI infrastructure company.",
+        url: "#nvda-sector-inflows",
+      },
+    ],
+  },
 ];
+
+function isRealUrl(url) {
+  return typeof url === "string" && /^https?:\/\//i.test(url);
+}
 
 function runPrototypeChecks() {
   console.assert(sampleIndexes.length >= 3, "Expected at least three sample market indexes.");
-  console.assert(sampleIndexes.every((index) => index.symbol && index.name && index.value), "Every market index needs a symbol, name, and value.");
-  console.assert(sampleIndexes.every((index) => index.driver && index.driver.headline && index.driver.details && index.driver.url), "Every market index needs a driver headline, details, and URL.");
+  console.assert(
+    sampleIndexes.every((index) => index.symbol && index.name && index.value),
+    "Every market index needs a symbol, name, and value."
+  );
+  console.assert(
+    sampleIndexes.every((index) => index.driver && index.driver.headline && index.driver.details && index.driver.url),
+    "Every market index needs a driver headline, details, and URL."
+  );
   console.assert(sampleStocks.length >= 4, "Expected at least four sample stocks.");
   console.assert(sampleStocks.every((stock) => stock.ticker && stock.name), "Every stock needs a ticker and company name.");
   console.assert(sampleStocks.every((stock) => stock.price > 0), "Every stock needs a positive price.");
-  console.assert(sampleStocks.every((stock) => Array.isArray(stock.drivers) && stock.drivers.length >= 3), "Every stock needs at least three market drivers.");
-  console.assert(sampleStocks.every((stock) => stock.drivers.every((driver) => driver.headline && driver.details && driver.url)), "Every stock driver needs a headline, details, and URL.");
+  console.assert(
+    sampleStocks.every((stock) => Array.isArray(stock.drivers) && stock.drivers.length >= 3),
+    "Every stock needs at least three market drivers."
+  );
+  console.assert(
+    sampleStocks.every((stock) => stock.drivers.every((driver) => driver.headline && driver.details && driver.url)),
+    "Every stock driver needs a headline, details, and URL."
+  );
+  console.assert(isRealUrl("https://example.com") === true, "HTTP/HTTPS links should be treated as real URLs.");
+  console.assert(isRealUrl("#placeholder") === false, "Hash placeholder links should not be treated as real URLs.");
+  console.assert(isRealUrl("") === false, "Empty links should not be treated as real URLs.");
   return true;
 }
 
@@ -203,9 +238,11 @@ function signedNumber(value) {
 }
 
 function PortfolioSummary({ stocks }) {
-  const gainers = stocks.filter((stock) => stock.change >= 0).length;
+  const gainers = stocks.filter((stock) => Number(stock.change || 0) >= 0).length;
   const losers = stocks.length - gainers;
-  const averageMove = stocks.reduce((total, stock) => total + stock.percent, 0) / stocks.length;
+  const averageMove = stocks.length
+    ? stocks.reduce((total, stock) => total + Number(stock.percent || 0), 0) / stocks.length
+    : 0;
 
   return (
     <div className="grid gap-4 md:grid-cols-3">
@@ -216,12 +253,16 @@ function PortfolioSummary({ stocks }) {
       </div>
       <div className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm">
         <div className="text-sm font-medium text-slate-500">Today’s Breadth</div>
-        <div className="mt-2 text-3xl font-bold text-slate-950">{gainers} up / {losers} down</div>
+        <div className="mt-2 text-3xl font-bold text-slate-950">
+          {gainers} up / {losers} down
+        </div>
         <div className="mt-2 text-sm text-slate-500">Based on latest market move</div>
       </div>
       <div className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm">
         <div className="text-sm font-medium text-slate-500">Average Move</div>
-        <div className={`mt-2 text-3xl font-bold ${averageMove >= 0 ? "text-emerald-600" : "text-red-600"}`}>{signedNumber(averageMove)}%</div>
+        <div className={`mt-2 text-3xl font-bold ${averageMove >= 0 ? "text-emerald-600" : "text-red-600"}`}>
+          {signedNumber(averageMove)}%
+        </div>
         <div className="mt-2 text-sm text-slate-500">Across your tracked names</div>
       </div>
     </div>
@@ -229,7 +270,7 @@ function PortfolioSummary({ stocks }) {
 }
 
 function MarketIndexCard({ index, onRemove }) {
-  const positive = index.change >= 0;
+  const positive = Number(index.change || 0) >= 0;
   const [selectedDriver, setSelectedDriver] = useState(null);
 
   return (
@@ -261,11 +302,16 @@ function MarketIndexCard({ index, onRemove }) {
 
       <button
         type="button"
-        onClick={() => setSelectedDriver(index.driver)}
+        onClick={(event) => {
+          event.preventDefault();
+          setSelectedDriver(index.driver);
+        }}
         className="mt-5 flex w-full items-start justify-between gap-3 rounded-2xl bg-slate-50 p-3 text-left text-sm text-slate-600 transition hover:bg-blue-50 hover:text-blue-700"
         title={`Read more about ${index.driver.headline}`}
       >
-        <span><span className="font-semibold text-slate-900">Market driver:</span> {index.driver.headline}</span>
+        <span>
+          <span className="font-semibold text-slate-900">Market driver:</span> {index.driver.headline}
+        </span>
         <LinkIcon size={14} className="mt-0.5 shrink-0" />
       </button>
 
@@ -318,6 +364,8 @@ function AddIndexBar({ onAdd }) {
 function DriverDetailModal({ driver, stock, onClose, label = "market driver" }) {
   if (!driver) return null;
 
+  const hasRealUrl = isRealUrl(driver.url);
+
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/60 p-4">
       <div className="w-full max-w-xl rounded-[2rem] bg-white p-6 shadow-2xl">
@@ -341,22 +389,36 @@ function DriverDetailModal({ driver, stock, onClose, label = "market driver" }) 
         <p className="mt-5 leading-7 text-slate-600">{driver.details}</p>
 
         <div className="mt-6 rounded-2xl bg-slate-50 p-4 text-sm text-slate-600">
-          In the production app, this would open the full news article, earnings note, analyst report, or AI-generated explanation connected to your market data provider.
+          In the production app, this would open the full news article, earnings note, analyst report, or AI-generated
+          explanation connected to your market data provider.
         </div>
 
-        <a
-          href={driver.url}
-          className="mt-5 inline-flex items-center gap-2 rounded-2xl bg-blue-600 px-5 py-3 font-semibold text-white shadow-sm transition hover:bg-blue-700"
-        >
-          Read more details <LinkIcon size={16} />
-        </a>
+        {hasRealUrl ? (
+          <a
+            href={driver.url}
+            target="_blank"
+            rel="noreferrer"
+            className="mt-5 inline-flex items-center gap-2 rounded-2xl bg-blue-600 px-5 py-3 font-semibold text-white shadow-sm transition hover:bg-blue-700"
+          >
+            Read full article <LinkIcon size={16} />
+          </a>
+        ) : (
+          <button
+            type="button"
+            disabled
+            className="mt-5 inline-flex cursor-not-allowed items-center gap-2 rounded-2xl bg-slate-200 px-5 py-3 font-semibold text-slate-500"
+            title="No article link is available for this item yet."
+          >
+            Article link unavailable
+          </button>
+        )}
       </div>
     </div>
   );
 }
 
 function StockCard({ stock, onRemove }) {
-  const positive = stock.change >= 0;
+  const positive = Number(stock.change || 0) >= 0;
   const [selectedDriver, setSelectedDriver] = useState(null);
 
   return (
@@ -407,9 +469,12 @@ function StockCard({ stock, onRemove }) {
         <div className="space-y-2">
           {(stock.drivers || []).map((driver, index) => (
             <button
-              key={index}
+              key={`${stock.ticker}-${index}-${driver.headline}`}
               type="button"
-              onClick={() => setSelectedDriver(driver)}
+              onClick={(event) => {
+                event.preventDefault();
+                setSelectedDriver(driver);
+              }}
               className="flex w-full items-start justify-between gap-3 rounded-xl bg-slate-50 px-3 py-2 text-left text-sm text-slate-600 transition hover:bg-blue-50 hover:text-blue-700"
               title={`Read more about ${driver.headline}`}
             >
@@ -419,11 +484,8 @@ function StockCard({ stock, onRemove }) {
           ))}
         </div>
       </div>
-      <DriverDetailModal
-        driver={selectedDriver}
-        stock={stock}
-        onClose={() => setSelectedDriver(null)}
-      />
+
+      <DriverDetailModal driver={selectedDriver} stock={stock} onClose={() => setSelectedDriver(null)} />
     </div>
   );
 }
@@ -473,9 +535,10 @@ function createPlaceholderIndex(symbol) {
     percent: symbol.length % 2 === 0 ? 0.64 : -0.31,
     driver: {
       headline: "Connect a market data API to load the latest index level",
-      details: "This placeholder index is ready to connect to a live market data API. In production, the app can summarize the main sectors, macro news, rates, or earnings trends moving the index.",
-      url: "#connect-index-market-data"
-    }
+      details:
+        "This placeholder index is ready to connect to a live market data API. In production, the app can summarize the main sectors, macro news, rates, or earnings trends moving the index.",
+      url: "#connect-index-market-data",
+    },
   };
 }
 
@@ -509,10 +572,123 @@ export default function App() {
           {
             headline: "Live market data from Finnhub",
             details: `${cleanTicker} is updating from Finnhub market data.`,
-            url: "#"
-          }
+            url: "#",
+          },
         ],
       };
+
+      setStocks((currentStocks) => {
+        const exists = currentStocks.some((stock) => stock.ticker === cleanTicker);
+
+        if (exists) {
+          return currentStocks.map((stock) => (stock.ticker === cleanTicker ? liveStock : stock));
+        }
+
+        return [liveStock, ...currentStocks];
+      });
+    } catch (error) {
+      console.error("Failed to load stock", error);
+    }
+  };
+
+  const removeStock = (ticker) => {
+    setStocks((currentStocks) => currentStocks.filter((stock) => stock.ticker !== ticker));
+  };
+
+  const addIndex = (symbol) => {
+    const cleanSymbol = symbol.trim().toUpperCase();
+    if (!cleanSymbol) return;
+
+    const exists = indexes.some((index) => index.symbol === cleanSymbol);
+    if (exists) return;
+
+    setIndexes((currentIndexes) => [createPlaceholderIndex(cleanSymbol), ...currentIndexes]);
+  };
+
+  const removeIndex = (symbol) => {
+    setIndexes((currentIndexes) => currentIndexes.filter((index) => index.symbol !== symbol));
+  };
+
+  return (
+    <div className="min-h-screen bg-slate-50 text-slate-950">
+      <header className="border-b bg-white/90 backdrop-blur">
+        <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-4 px-6 py-4">
+          <div>
+            <div className="text-lg font-bold text-slate-950">MyStockInfo</div>
+            <div className="text-sm text-slate-500">Executive Portfolio Dashboard</div>
+          </div>
+          <div className="flex gap-3">
+            <button
+              type="button"
+              className="flex items-center gap-2 rounded-2xl border bg-white px-4 py-2 text-sm font-semibold shadow-sm"
+            >
+              <ReportIcon size={16} /> Export Report
+            </button>
+            <button
+              type="button"
+              className="flex items-center gap-2 rounded-2xl bg-slate-950 px-4 py-2 text-sm font-semibold text-white shadow-sm"
+            >
+              <BellIcon size={16} /> Create Alert
+            </button>
+          </div>
+        </div>
+      </header>
+
+      <main className="mx-auto max-w-7xl px-6 py-10">
+        <section className="mb-8 flex flex-wrap items-end justify-between gap-6">
+          <div>
+            <div className="mb-3 inline-flex rounded-full bg-blue-50 px-4 py-2 text-sm font-semibold text-blue-700">
+              Executive Portfolio
+            </div>
+            <h1 className="text-5xl font-black tracking-tight">Your portfolio, clearly explained.</h1>
+            <p className="mt-4 max-w-2xl text-slate-600">
+              Track your stocks, see the latest market movement, and quickly understand the news and catalysts driving each
+              name.
+            </p>
+          </div>
+        </section>
+
+        <AddStockBar onAdd={addStock} />
+
+        <section className="mt-8">
+          <PortfolioSummary stocks={stocks} />
+        </section>
+
+        <section className="mt-8 rounded-[2rem] border border-slate-200 bg-white/50 p-5">
+          <div className="mb-5 flex flex-wrap items-end justify-between gap-4">
+            <div>
+              <div className="flex items-center gap-2 text-2xl font-bold text-slate-950">
+                <MarketIcon size={20} /> Market Indexes
+              </div>
+              <p className="mt-1 text-sm text-slate-500">Track major indexes separately from your individual stock watchlist.</p>
+            </div>
+          </div>
+
+          <AddIndexBar onAdd={addIndex} />
+
+          <div className="mt-5 grid gap-5 md:grid-cols-2 xl:grid-cols-4">
+            {indexes.map((index) => (
+              <MarketIndexCard key={index.symbol} index={index} onRemove={removeIndex} />
+            ))}
+          </div>
+        </section>
+
+        <section className="mt-8">
+          <div className="mb-5">
+            <h2 className="text-2xl font-bold text-slate-950">Individual Stocks</h2>
+            <p className="mt-1 text-sm text-slate-500">Your company-level watchlist and stock-specific catalysts.</p>
+          </div>
+          <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-4">
+            {stocks.map((stock) => (
+              <StockCard key={stock.ticker} stock={stock} onRemove={removeStock} />
+            ))}
+          </div>
+        </section>
+      </main>
+    </div>
+  );
+}
+
 
       setStocks((currentStocks) => {
         const exists = currentStocks.some((stock) => stock.ticker === cleanTicker);
