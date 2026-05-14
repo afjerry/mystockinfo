@@ -304,7 +304,8 @@ function MarketIndexCard({ index, onRemove }) {
         type="button"
         onClick={(event) => {
           event.preventDefault();
-          setSelectedDriver(index.driver);
+          event.stopPropagation();
+          openDriver(index.driver, setSelectedDriver);
         }}
         className="mt-5 flex w-full items-start justify-between gap-3 rounded-2xl bg-slate-50 p-3 text-left text-sm text-slate-600 transition hover:bg-blue-50 hover:text-blue-700"
         title={`Read more about ${index.driver.headline}`}
@@ -361,10 +362,17 @@ function AddIndexBar({ onAdd }) {
   );
 }
 
+function openDriver(driver, setSelectedDriver) {
+  if (isRealUrl(driver?.url)) {
+    window.open(driver.url, "_blank", "noopener,noreferrer");
+    return;
+  }
+
+  setSelectedDriver(driver);
+}
+
 function DriverDetailModal({ driver, stock, onClose, label = "market driver" }) {
   if (!driver) return null;
-
-  const hasRealUrl = isRealUrl(driver.url);
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/60 p-4">
@@ -392,26 +400,14 @@ function DriverDetailModal({ driver, stock, onClose, label = "market driver" }) 
           In the production app, this would open the full news article, earnings note, analyst report, or AI-generated
           explanation connected to your market data provider.
         </div>
-
-        {hasRealUrl ? (
-          <a
-            href={driver.url}
-            target="_blank"
-            rel="noreferrer"
-            className="mt-5 inline-flex items-center gap-2 rounded-2xl bg-blue-600 px-5 py-3 font-semibold text-white shadow-sm transition hover:bg-blue-700"
-          >
-            Read full article <LinkIcon size={16} />
-          </a>
-        ) : (
-          <button
-            type="button"
-            disabled
-            className="mt-5 inline-flex cursor-not-allowed items-center gap-2 rounded-2xl bg-slate-200 px-5 py-3 font-semibold text-slate-500"
-            title="No article link is available for this item yet."
-          >
-            Article link unavailable
-          </button>
-        )}
+        <button
+          type="button"
+          disabled
+          className="mt-5 inline-flex cursor-not-allowed items-center gap-2 rounded-2xl bg-slate-200 px-5 py-3 font-semibold text-slate-500"
+          title="No article link is available for this item yet."
+        >
+          Article link unavailable
+        </button>
       </div>
     </div>
   );
@@ -473,7 +469,8 @@ function StockCard({ stock, onRemove }) {
               type="button"
               onClick={(event) => {
                 event.preventDefault();
-                setSelectedDriver(driver);
+                event.stopPropagation();
+                openDriver(driver, setSelectedDriver);
               }}
               className="flex w-full items-start justify-between gap-3 rounded-xl bg-slate-50 px-3 py-2 text-left text-sm text-slate-600 transition hover:bg-blue-50 hover:text-blue-700"
               title={`Read more about ${driver.headline}`}
@@ -689,108 +686,5 @@ export default function App() {
   );
 }
 
-
-      setStocks((currentStocks) => {
-        const exists = currentStocks.some((stock) => stock.ticker === cleanTicker);
-
-        if (exists) {
-          return currentStocks.map((stock) =>
-            stock.ticker === cleanTicker ? liveStock : stock
-          );
-        }
-
-        return [liveStock, ...currentStocks];
-      });
-    } catch (error) {
-      console.error("Failed to load stock", error);
-    }
-  };
-
-  const removeStock = (ticker) => {
-    setStocks((currentStocks) => currentStocks.filter((stock) => stock.ticker !== ticker));
-  };
-
-  const addIndex = (symbol) => {
-    const exists = indexes.some((index) => index.symbol === symbol);
-    if (exists) return;
-    setIndexes((currentIndexes) => [createPlaceholderIndex(symbol), ...currentIndexes]);
-  };
-
-  const removeIndex = (symbol) => {
-    setIndexes((currentIndexes) => currentIndexes.filter((index) => index.symbol !== symbol));
-  };
-
-  return (
-    <div className="min-h-screen bg-slate-50 text-slate-950">
-      <header className="border-b bg-white/90 backdrop-blur">
-        <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-4 px-6 py-4">
-          <div>
-            <div className="text-lg font-bold text-slate-950">MyStockInfo</div>
-            <div className="text-sm text-slate-500">Executive Portfolio Dashboard</div>
-          </div>
-          <div className="flex gap-3">
-            <button type="button" className="flex items-center gap-2 rounded-2xl border bg-white px-4 py-2 text-sm font-semibold shadow-sm">
-              <ReportIcon size={16} /> Export Report
-            </button>
-            <button type="button" className="flex items-center gap-2 rounded-2xl bg-slate-950 px-4 py-2 text-sm font-semibold text-white shadow-sm">
-              <BellIcon size={16} /> Create Alert
-            </button>
-          </div>
-        </div>
-      </header>
-
-      <main className="mx-auto max-w-7xl px-6 py-10">
-        <section className="mb-8 flex flex-wrap items-end justify-between gap-6">
-          <div>
-            <div className="mb-3 inline-flex rounded-full bg-blue-50 px-4 py-2 text-sm font-semibold text-blue-700">
-              Executive Portfolio
-            </div>
-            <h1 className="text-5xl font-black tracking-tight">Your portfolio, clearly explained.</h1>
-            <p className="mt-4 max-w-2xl text-slate-600">
-              Track your stocks, see the latest market movement, and quickly understand the news and catalysts driving each name.
-            </p>
-          </div>
-        </section>
-
-        <AddStockBar onAdd={addStock} />
-
-        <section className="mt-8">
-          <PortfolioSummary stocks={stocks} />
-        </section>
-
-        <section className="mt-8 rounded-[2rem] border border-slate-200 bg-white/50 p-5">
-          <div className="mb-5 flex flex-wrap items-end justify-between gap-4">
-            <div>
-              <div className="flex items-center gap-2 text-2xl font-bold text-slate-950">
-                <MarketIcon size={20} /> Market Indexes
-              </div>
-              <p className="mt-1 text-sm text-slate-500">Track major indexes separately from your individual stock watchlist.</p>
-            </div>
-          </div>
-
-          <AddIndexBar onAdd={addIndex} />
-
-          <div className="mt-5 grid gap-5 md:grid-cols-2 xl:grid-cols-4">
-            {indexes.map((index) => (
-              <MarketIndexCard key={index.symbol} index={index} onRemove={removeIndex} />
-            ))}
-          </div>
-        </section>
-
-        <section className="mt-8">
-          <div className="mb-5">
-            <h2 className="text-2xl font-bold text-slate-950">Individual Stocks</h2>
-            <p className="mt-1 text-sm text-slate-500">Your company-level watchlist and stock-specific catalysts.</p>
-          </div>
-          <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-4">
-          {stocks.map((stock) => (
-            <StockCard key={stock.ticker} stock={stock} onRemove={removeStock} />
-          ))}
-          </div>
-        </section>
-      </main>
-    </div>
-  );
-}
 
 
