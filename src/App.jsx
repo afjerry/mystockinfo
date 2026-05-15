@@ -301,7 +301,10 @@ export default function App() {
       price: Number(data.price || 0),
       change: Number(data.change || 0),
       percent: Number(data.percent || 0),
-      volume: data.volume || "N/A",
+      volume:
+  	typeof data.volume === "number"
+    	  ? data.volume.toLocaleString()
+    	  : data.volume || "N/A",
       marketCap: data.marketCap || "N/A",
       signal: data.signal || (Number(data.percent || 0) >= 0 ? "Positive" : "Negative"),
       drivers: Array.isArray(data.drivers) && data.drivers.length > 0 ? data.drivers : [{ headline: "Live market data loaded", details: `${cleanTicker} is updating from live market data.`, url: "" }],
