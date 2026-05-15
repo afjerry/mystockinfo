@@ -18,7 +18,7 @@ function formatLargeNumber(value) {
   return num.toLocaleString();
 }
 
-async function getYahooQuote(symbol) {
+async function getYahooIndex(symbol) {
   const url = `https://query1.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(
     symbol
   )}?interval=1d&range=5d`;
@@ -40,11 +40,45 @@ async function getYahooQuote(symbol) {
     change,
     percent,
     name: meta.longName || meta.shortName || symbol,
-    volume: meta.regularMarketVolume || 0,
   };
 }
 
-async function getFinnhubNews(symbol, apiKey) {
+async function getFinnhubVolume(symbol, apiKey) {
+  const today = new Date();
+  const past = new Date();
+  past.setDate(today.getDate() - 10);
+
+  const to = Math.floor(today.getTime() / 1000);
+  const from = Math.floor(past.getTime() / 1000);
+
+  const response = await fetch(
+    `https://finnhub.io/api/v1/stock/candle?symbol=${encodeURIComponent(
+      symbol
+    )}&resolution=D&from=${from}&to=${to}&token=${apiKey}`
+  );
+
+  const data = await response.json();
+
+  if (data?.s !== "ok" || !Array.isArray(data.v) || data.v.length === 0) {
+    return 0;
+  }
+
+  return data.v[data.v.length - 1] || 0;
+}
+
+async function getFinnhubStock(symbol, apiKey) {
+  const quoteResponse = await fetch(
+    `https://finnhub.io/api/v1/quote?symbol=${encodeURIComponent(symbol)}&token=${apiKey}`
+  );
+  const quote = await quoteResponse.json();
+
+  const profileResponse = await fetch(
+    `https://finnhub.io/api/v1/stock/profile2?symbol=${encodeURIComponent(symbol)}&token=${apiKey}`
+  );
+  const profile = await profileResponse.json();
+
+  const volume = await getFinnhubVolume(symbol, apiKey);
+
   const today = new Date();
   const past = new Date();
   past.setDate(today.getDate() - 30);
@@ -57,26 +91,27 @@ async function getFinnhubNews(symbol, apiKey) {
       symbol
     )}&from=${from}&to=${to}&token=${apiKey}`
   );
-
   const news = await newsResponse.json();
 
-  return Array.isArray(news)
+  const drivers = Array.isArray(news)
     ? news.slice(0, 3).map((item) => ({
         headline: item.headline || "Market update",
         details: item.summary || "No summary was available for this news item.",
         url: item.url || "",
       }))
     : [];
-}
 
-async function getFinnhubProfile(symbol, apiKey) {
-  const profileResponse = await fetch(
-    `https://finnhub.io/api/v1/stock/profile2?symbol=${encodeURIComponent(
-      symbol
-    )}&token=${apiKey}`
-  );
-
-  return profileResponse.json();
+  return {
+    price: Number(quote.c || 0),
+    change: Number(quote.d || 0),
+    percent: Number(quote.dp || 0),
+    name: profile.name || symbol,
+    volume: formatLargeNumber(volume),
+    marketCap: profile.marketCapitalization
+      ? `${Number(profile.marketCapitalization / 1000).toFixed(2)}B`
+      : "N/A",
+    drivers,
+  };
 }
 
 export default async function handler(req, res) {
@@ -87,30 +122,30 @@ export default async function handler(req, res) {
   }
 
   const apiKey = process.env.FINNHUB_API_KEY;
-  const yahooSymbol = indexMap[rawSymbol] || rawSymbol;
-  const isIndex = Boolean(indexMap[rawSymbol]);
+  const yahooSymbol = indexMap[rawSymbol];
+  const isIndex = Boolean(yahooSymbol);
 
   try {
-    const yahooQuote = await getYahooQuote(yahooSymbol);
-
-    if (!yahooQuote) {
-      return res.status(404).json({
-        error: "No quote data found",
-        symbol: rawSymbol,
-        yahooSymbol,
-      });
-    }
-
     if (isIndex) {
+      const indexQuote = await getYahooIndex(yahooSymbol);
+
+      if (!indexQuote) {
+        return res.status(404).json({
+          error: "No index quote data found",
+          symbol: rawSymbol,
+          yahooSymbol,
+        });
+      }
+
       return res.status(200).json({
         ticker: rawSymbol,
-        name: yahooQuote.name,
-        price: yahooQuote.price,
-        change: yahooQuote.change,
-        percent: yahooQuote.percent,
+        name: indexQuote.name,
+        price: indexQuote.price,
+        change: indexQuote.change,
+        percent: indexQuote.percent,
         volume: "Index",
         marketCap: "Index",
-        signal: yahooQuote.percent >= 0 ? "Positive" : "Negative",
+        signal: indexQuote.percent >= 0 ? "Positive" : "Negative",
         drivers: [
           {
             headline: "Index is updating from live Yahoo Finance market data",
@@ -121,32 +156,28 @@ export default async function handler(req, res) {
       });
     }
 
-    let profile = {};
-    let drivers = [];
-
-    if (apiKey) {
-      profile = await getFinnhubProfile(rawSymbol, apiKey);
-      drivers = await getFinnhubNews(rawSymbol, apiKey);
+    if (!apiKey) {
+      return res.status(500).json({ error: "Missing Finnhub API key" });
     }
+
+    const stock = await getFinnhubStock(rawSymbol, apiKey);
 
     return res.status(200).json({
       ticker: rawSymbol,
-      name: profile.name || yahooQuote.name || rawSymbol,
-      price: yahooQuote.price,
-      change: yahooQuote.change,
-      percent: yahooQuote.percent,
-      volume: formatLargeNumber(yahooQuote.volume),
-      marketCap: profile.marketCapitalization
-        ? `${Number(profile.marketCapitalization / 1000).toFixed(2)}B`
-        : "N/A",
-      signal: yahooQuote.percent >= 0 ? "Positive" : "Negative",
+      name: stock.name,
+      price: stock.price,
+      change: stock.change,
+      percent: stock.percent,
+      volume: stock.volume || "N/A",
+      marketCap: stock.marketCap || "N/A",
+      signal: stock.percent >= 0 ? "Positive" : "Negative",
       drivers:
-        drivers.length > 0
-          ? drivers
+        stock.drivers.length > 0
+          ? stock.drivers
           : [
               {
-                headline: "Live market data loaded",
-                details: `${rawSymbol} is updating from live market data, but no recent article link was returned.`,
+                headline: "Live market data from Finnhub",
+                details: `${rawSymbol} is updating from Finnhub market data, but no recent article link was returned.`,
                 url: "",
               },
             ],
