@@ -84,7 +84,7 @@ async function getFinnhubStock(symbol, apiKey) {
     change: Number(quote.d || 0),
     percent: Number(quote.dp || 0),
     name: profile.name || `${symbol} Holdings`,
-    volume: quote.regularMarketVolume || quote.volume || 0,
+    volume: quoteData.v || quote.regularMarketVolume || quote.volume || 0,
     marketCap: profile.marketCapitalization
       ? `${Number(profile.marketCapitalization / 1000).toFixed(2)}B`
       : "N/A",
